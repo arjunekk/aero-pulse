@@ -1,6 +1,6 @@
 # Aero-Pulse: Air Quality Pattern Discovery (DBSCAN)
 
-Data Mining (22ADG53) individual case study, NMIT Bengaluru.
+
 Density-based clustering of air-quality observations (PM2.5, PM10, NO2, temperature) to
 find dense pollution regimes and unusual observations (DBSCAN "noise").
 
