@@ -48,6 +48,7 @@ def summarize(name: str, X: np.ndarray, labels: np.ndarray, sample_size: int = 1
         model=name,
         n_clusters=int(len(np.unique(core))),
         noise_ratio=float((labels == -1).mean()),
+        coverage=float((labels != -1).mean()),
         silhouette=sil,
         davies_bouldin=db,
         calinski_harabasz=ch,

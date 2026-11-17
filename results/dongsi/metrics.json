@@ -1,0 +1,86 @@
+{
+  "preprocessing": {
+    "rows_raw": 35064,
+    "rows_after_dedup": 35064,
+    "negative_values_set_nan": 0,
+    "missing_cells_before": {
+      "PM2.5": 750,
+      "PM10": 553,
+      "NO2": 1601,
+      "TEMP": 20
+    },
+    "resample": "D",
+    "rows_after_aggregation": 1383,
+    "rows_final": 1383,
+    "stations": [
+      "Dongsi"
+    ],
+    "date_min": "2013-03-01 00:00:00",
+    "date_max": "2017-02-28 00:00:00"
+  },
+  "k_distance": {
+    "k": 8,
+    "knee_eps": 0.7032789934060941
+  },
+  "selected": {
+    "eps": 0.8,
+    "min_samples": 10,
+    "rule": "relaxed: no config had 2 major clusters; chosen cluster set includes a minor one",
+    "silhouette": 0.3905996214640048,
+    "davies_bouldin": 0.5807130438487487,
+    "calinski_harabasz": 26.293928078787165
+  },
+  "dbscan": {
+    "n_clusters": 2,
+    "n_major_clusters": 1,
+    "cluster_sizes": [
+      1336,
+      6
+    ],
+    "noise_ratio": 0.02964569775849602,
+    "n_noise": 41,
+    "n_total": 1383
+  },
+  "model_comparison": [
+    {
+      "model": "DBSCAN",
+      "n_clusters": 2,
+      "noise_ratio": 0.02964569775849602,
+      "coverage": 0.970354302241504,
+      "silhouette": 0.3905996214640048,
+      "davies_bouldin": 0.5807130438487487,
+      "calinski_harabasz": 26.293928078787165
+    },
+    {
+      "model": "KMeans (k=2)",
+      "n_clusters": 2,
+      "noise_ratio": 0.0,
+      "coverage": 1.0,
+      "silhouette": 0.34311716410440035,
+      "davies_bouldin": 1.1226163994417477,
+      "calinski_harabasz": 948.317220596899
+    },
+    {
+      "model": "HDBSCAN",
+      "n_clusters": 3,
+      "noise_ratio": 0.749819233550253,
+      "coverage": 0.2501807664497469,
+      "silhouette": 0.6153411467386098,
+      "davies_bouldin": 0.49435893611830833,
+      "calinski_harabasz": 527.9794867248129
+    }
+  ],
+  "anomaly_agreement": {
+    "jaccard_dbscan_vs_isolation_forest": 0.30158730158730157,
+    "jaccard_dbscan_vs_lof": 0.36666666666666664,
+    "jaccard_isolation_forest_vs_lof": 0.1232876712328767
+  },
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.5.4",
+    "pandas": "3.1.1",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2"
+  },
+  "runtime_seconds": 7.5
+}

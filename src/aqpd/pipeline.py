@@ -35,8 +35,8 @@ from .models import (
 from .preprocess import preprocess
 from .tuning import grid_search, k_distances, knee_point, select_params
 
-DEFAULT_EPS = [round(x, 2) for x in np.arange(0.2, 1.01, 0.1)]
-DEFAULT_MINPTS = [5, 8, 10, 15, 20, 30]
+DEFAULT_EPS = [round(x, 2) for x in np.arange(0.2, 1.01, 0.05)]
+DEFAULT_MINPTS = [4, 5, 8, 10, 15, 20, 30]
 
 
 def run(
@@ -49,6 +49,7 @@ def run(
     eps_grid: list[float] | None = None,
     minpts_grid: list[int] | None = None,
     k_for_knee: int = 8,
+    min_cluster_share: float = 0.01,
     df: pd.DataFrame | None = None,
 ) -> dict:
     """Run everything and write tables/figures/metrics under ``out_dir``. Returns the metrics dict."""
@@ -67,7 +68,8 @@ def run(
     viz.plot_k_distance(kd, k_for_knee, knee, out / "figures" / "01_k_distance.png")
 
     # 2) grid search + selection
-    grid = grid_search(X, eps_grid or DEFAULT_EPS, minpts_grid or DEFAULT_MINPTS)
+    grid = grid_search(X, eps_grid or DEFAULT_EPS, minpts_grid or DEFAULT_MINPTS,
+                       min_cluster_share=min_cluster_share)
     grid.to_csv(out / "tables" / "grid_search.csv", index=False)
     best, rule = select_params(grid)
     eps, m = float(best["eps"]), int(best["min_samples"])
@@ -77,8 +79,10 @@ def run(
     # 3) final DBSCAN
     labels, _ = fit_dbscan(X, eps, m)
     n_clusters = int(len(np.unique(labels[labels != -1])))
+    sizes = np.bincount(labels[labels != -1]) if n_clusters else np.array([0])
+    n_major = int((sizes >= min_cluster_share * len(labels)).sum())
     noise_ratio = float((labels == -1).mean())
-    print(f"[dbscan] {n_clusters} clusters, noise {100 * noise_ratio:.2f}%")
+    print(f"[dbscan] {n_clusters} clusters ({n_major} major), noise {100 * noise_ratio:.2f}%")
 
     # 4) baselines / anomaly cross-checks
     comp = [summarize("DBSCAN", X, labels)]
@@ -114,7 +118,8 @@ def run(
     viz.plot_pca(X, labels, out / "figures" / "03_clusters_pca.png",
                  f"DBSCAN clusters (eps={eps:g}, min_samples={m}) in PCA space")
     viz.plot_profiles(z, out / "figures" / "04_cluster_profiles.png")
-    viz.plot_seasons(seasons, out / "figures" / "05_seasonal_composition.png")
+    viz.plot_seasons(seasons, out / "figures" / "05_seasonal_composition.png",
+                     sizes=label_names(labels).value_counts().to_dict())
     viz.plot_noise_timeline(clean, labels, out / "figures" / "06_noise_timeline.png")
 
     metrics = {
@@ -123,7 +128,8 @@ def run(
         "selected": {"eps": eps, "min_samples": m, "rule": rule,
                      **{c: (None if pd.isna(best[c]) else float(best[c]))
                         for c in ["silhouette", "davies_bouldin", "calinski_harabasz"]}},
-        "dbscan": {"n_clusters": n_clusters, "noise_ratio": noise_ratio,
+        "dbscan": {"n_clusters": n_clusters, "n_major_clusters": n_major,
+                   "cluster_sizes": sizes.tolist(), "noise_ratio": noise_ratio,
                    "n_noise": int(noise.sum()), "n_total": int(len(labels))},
         "model_comparison": comp_df.to_dict(orient="records"),
         "anomaly_agreement": agreement,

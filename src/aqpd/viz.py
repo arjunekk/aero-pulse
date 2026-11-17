@@ -53,7 +53,10 @@ def plot_k_distance(kd: np.ndarray, k: int, knee_idx: int, out: Path) -> None:
 
 
 def plot_grid(grid: pd.DataFrame, chosen: pd.Series, out: Path) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    n_eps = grid["eps"].nunique()
+    wide = n_eps > 10
+    fig, axes = plt.subplots(1, 2, figsize=(17, 5) if wide else (11, 4))
+    fs = 5.5 if wide else 7
     for ax, col, title, cmap in [
         (axes[0], "silhouette", "Silhouette (non-noise points)", "Blues"),
         (axes[1], "noise_ratio", "Noise ratio", "Oranges"),
@@ -70,11 +73,14 @@ def plot_grid(grid: pd.DataFrame, chosen: pd.Series, out: Path) -> None:
             for j in range(pv.shape[1]):
                 v = pv.values[i, j]
                 if not np.isnan(v):
-                    ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=7)
+                    ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=fs,
+                            color="white" if im.norm(v) > 0.6 else "black")
         xi = list(pv.columns).index(chosen["eps"])
         yi = list(pv.index).index(int(chosen["min_samples"]))
         ax.add_patch(plt.Rectangle((xi - 0.5, yi - 0.5), 1, 1, fill=False, ec="black", lw=2))
         fig.colorbar(im, ax=ax, fraction=0.046)
+    fig.text(0.5, -0.02, "Black box = selected setting. White silhouette cells = fewer than 2 clusters "
+             "(silhouette undefined).", ha="center", fontsize=8)
     _save(fig, out)
 
 
@@ -104,19 +110,21 @@ def plot_profiles(z: pd.DataFrame, out: Path) -> None:
     ax.grid(False)
     for i in range(z.shape[0]):
         for j in range(z.shape[1]):
-            ax.text(j, i, f"{z.values[i, j]:+.2f}", ha="center", va="center", fontsize=9)
+            ax.text(j, i, f"{z.values[i, j]:+.2f}", ha="center", va="center", fontsize=9,
+                    color="white" if abs(z.values[i, j]) > 0.55 * lim else "black")
     ax.set_title("Cluster profile (mean z-score per feature)")
     fig.colorbar(im, ax=ax, fraction=0.046, label="z-score")
     _save(fig, out)
 
 
-def plot_seasons(season_pct: pd.DataFrame, out: Path) -> None:
+def plot_seasons(season_pct: pd.DataFrame, out: Path, sizes: dict | None = None) -> None:
     fig, ax = plt.subplots(figsize=(7, 4))
     bottom = np.zeros(len(season_pct))
     cols = [c for c in SEASON_ORDER if c in season_pct.columns]
     shades = ["#0072B2", "#009E73", "#E69F00", "#CC79A7"]
+    ylabels = [f"{i} (n={sizes[i]})" if sizes and i in sizes else i for i in season_pct.index]
     for c, col in zip(cols, shades):
-        ax.barh(season_pct.index, season_pct[c], left=bottom, color=col, edgecolor="white", lw=1.5, label=c)
+        ax.barh(ylabels, season_pct[c], left=bottom, color=col, edgecolor="white", lw=1.5, label=c)
         bottom += season_pct[c].to_numpy()
     ax.set_xlabel("% of cluster's observations")
     ax.set_title("Seasonal composition of each cluster")

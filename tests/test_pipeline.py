@@ -55,11 +55,11 @@ def test_k_distance_sorted():
 
 def test_select_params_respects_noise_constraint():
     g = pd.DataFrame({
-        "eps": [0.3, 0.5], "min_samples": [5, 5], "n_clusters": [2, 2],
+        "eps": [0.3, 0.5], "min_samples": [5, 5], "n_clusters": [2, 2], "n_major_clusters": [2, 2],
         "noise_ratio": [0.5, 0.05], "silhouette": [0.9, 0.4],
     })
     best, rule = select_params(g)
-    assert best["eps"] == 0.5 and rule == "constrained"
+    assert best["eps"] == 0.5 and rule.startswith("constrained")
 
 
 def test_end_to_end(data_dir, tmp_path):
@@ -71,3 +71,21 @@ def test_end_to_end(data_dir, tmp_path):
               "05_seasonal_composition", "06_noise_timeline"]:
         assert (out / "figures" / f"{f}.png").exists()
     assert m["dbscan"]["n_clusters"] >= 1
+
+
+def test_select_params_prefers_two_major_clusters():
+    g = pd.DataFrame({
+        "eps": [0.5, 0.7], "min_samples": [8, 8], "n_clusters": [2, 2], "n_major_clusters": [1, 2],
+        "noise_ratio": [0.02, 0.03], "silhouette": [0.9, 0.3],
+    })
+    best, rule = select_params(g)
+    assert best["eps"] == 0.7 and rule.startswith("constrained")
+
+
+def test_select_params_relaxes_when_no_two_major():
+    g = pd.DataFrame({
+        "eps": [0.5], "min_samples": [8], "n_clusters": [2], "n_major_clusters": [1],
+        "noise_ratio": [0.02], "silhouette": [0.2],
+    })
+    _, rule = select_params(g)
+    assert rule.startswith("relaxed")

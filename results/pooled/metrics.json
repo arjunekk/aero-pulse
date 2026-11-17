@@ -1,0 +1,97 @@
+{
+  "preprocessing": {
+    "rows_raw": 420768,
+    "rows_after_dedup": 420768,
+    "negative_values_set_nan": 0,
+    "missing_cells_before": {
+      "PM2.5": 8739,
+      "PM10": 6449,
+      "NO2": 12116,
+      "TEMP": 398
+    },
+    "resample": "D",
+    "rows_after_aggregation": 16916,
+    "rows_final": 16916,
+    "stations": [
+      "Aotizhongxin",
+      "Changping",
+      "Dingling",
+      "Dongsi",
+      "Guanyuan",
+      "Gucheng",
+      "Huairou",
+      "Nongzhanguan",
+      "Shunyi",
+      "Tiantan",
+      "Wanliu",
+      "Wanshouxigong"
+    ],
+    "date_min": "2013-03-01 00:00:00",
+    "date_max": "2017-02-28 00:00:00"
+  },
+  "k_distance": {
+    "k": 8,
+    "knee_eps": 0.41448772657953425
+  },
+  "selected": {
+    "eps": 0.45,
+    "min_samples": 20,
+    "rule": "relaxed: no config had 2 major clusters; chosen cluster set includes a minor one",
+    "silhouette": 0.4138187810574951,
+    "davies_bouldin": 0.4713481779962286,
+    "calinski_harabasz": 63.23738215535328
+  },
+  "dbscan": {
+    "n_clusters": 2,
+    "n_major_clusters": 1,
+    "cluster_sizes": [
+      15988,
+      12
+    ],
+    "noise_ratio": 0.05414991723811776,
+    "n_noise": 916,
+    "n_total": 16916
+  },
+  "model_comparison": [
+    {
+      "model": "DBSCAN",
+      "n_clusters": 2,
+      "noise_ratio": 0.05414991723811776,
+      "coverage": 0.9458500827618822,
+      "silhouette": 0.4138187810574951,
+      "davies_bouldin": 0.4713481779962286,
+      "calinski_harabasz": 63.23738215535328
+    },
+    {
+      "model": "KMeans (k=2)",
+      "n_clusters": 2,
+      "noise_ratio": 0.0,
+      "coverage": 1.0,
+      "silhouette": 0.34523265740915493,
+      "davies_bouldin": 1.1298882941652413,
+      "calinski_harabasz": 11576.834654413336
+    },
+    {
+      "model": "HDBSCAN",
+      "n_clusters": 2,
+      "noise_ratio": 0.8001300543863797,
+      "coverage": 0.19986994561362023,
+      "silhouette": 0.5577311017767352,
+      "davies_bouldin": 0.6698730331938652,
+      "calinski_harabasz": 5548.498861552179
+    }
+  ],
+  "anomaly_agreement": {
+    "jaccard_dbscan_vs_isolation_forest": 0.35202952029520296,
+    "jaccard_dbscan_vs_lof": 0.17360666239590006,
+    "jaccard_isolation_forest_vs_lof": 0.1103030303030303
+  },
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.5.4",
+    "pandas": "3.1.1",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2"
+  },
+  "runtime_seconds": 116.4
+}

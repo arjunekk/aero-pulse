@@ -17,11 +17,14 @@ def main() -> None:
     p.add_argument("--scaler", choices=["standard", "robust"], default="standard")
     p.add_argument("--eps", nargs="*", type=float, default=None, help="eps grid override")
     p.add_argument("--min-samples", nargs="*", type=int, default=None, help="min_samples grid override")
+    p.add_argument("--min-cluster-share", type=float, default=0.01,
+                   help="a cluster counts as major if it holds at least this share of rows")
     a = p.parse_args()
     run(
         a.data_dir, a.out, a.stations,
         None if a.resample.lower() == "none" else a.resample,
         a.min_obs, a.scaler, a.eps, a.min_samples,
+        min_cluster_share=a.min_cluster_share,
     )
 
 
